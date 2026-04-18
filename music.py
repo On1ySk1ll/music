@@ -40,8 +40,8 @@ def choosemusic():
     global pos, paused
     pos = musiclist.currentRow()
     mediaplay.setSource(music[pos])
-    if name[1] == "none":
-        lblcur.setText((musicnames[pos])[0])
+    if musicnames[pos][1] == "none":
+        lblcur.setText((musicnames[pos])[0][:-4])
     else:
         lblcur.setText((musicnames[pos])[1])
     paused = False
