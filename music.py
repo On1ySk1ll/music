@@ -1,10 +1,11 @@
-import sys, os
+import sys, os, tinytag
 from PyQt6.QtWidgets import *
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtCore import QUrl, Qt
 from random import randint
 
 app = QApplication(sys.argv)
+app.setStyle('Fusion')
 window = QWidget()
 window.setWindowTitle('музычка')
 
@@ -18,22 +19,31 @@ musicnames = []
 with os.scandir(path) as entries:
     for entry in entries:
         if entry.name.endswith('.mp3'):
-            musicnames.append(entry.name)
+            tag = tinytag.TinyTag.get(path + '/' + entry.name)
+            if tag.artist and tag.title:
+                musicnames.append((entry.name, f'{tag.artist} ― {tag.title}'))
+            else:
+                musicnames.append((entry.name, 'none'))
 music = []
 for name in musicnames:
-    print(path + '/' + name)
-    music.append(QUrl.fromLocalFile(path + '/' + name))
+    music.append(QUrl.fromLocalFile(path + '/' + name[0]))
 
 # список музыки #
 musiclist = QListWidget()
 for name in musicnames:
-    musiclist.addItem(name[:-4])
+    if name[1] == "none":
+        musiclist.addItem(name[0][:-4])
+    else:
+        musiclist.addItem(name[1])
 musiclist.setCurrentRow(0)
 def choosemusic():
     global pos, paused
     pos = musiclist.currentRow()
     mediaplay.setSource(music[pos])
-    lblcur.setText(musicnames[pos][:-4])
+    if name[1] == "none":
+        lblcur.setText((musicnames[pos])[0])
+    else:
+        lblcur.setText((musicnames[pos])[1])
     paused = False
     btnstart.setText('■')
     mediaplay.play()
@@ -43,7 +53,10 @@ mediaplay.setSource(music[0])
 paused = True
 length = len(music) - 1
 pos = 0
-lblcur = QLabel(text=musicnames[0][:-4])
+if musicnames[0][1] == 'none':
+    lblcur = QLabel(text=musicnames[0][0][:-4])
+else:
+    lblcur = QLabel(text=musicnames[0][1])
 mode = 0
 modes = {1 : False, 2 : True, 3 : True, 4 : False}
 
