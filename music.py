@@ -9,7 +9,7 @@ from PyQt6.QtCore import QUrl, Qt
 from PyQt6.QtGui import QPixmap
 from random import randint
 
-# feat Nikita aka On1ySk1ll
+# feat Nikita aka On1ySk1ll for style and fuller music names
 
 # создание базы данных плейлистов #
 path = getcwd() + '\music'
@@ -301,16 +301,19 @@ def start():
 
 # листать музыку #
 def change_music(pos):
-    mediaplay.stop()
-    music_name = musiclist.item(pos).text()
-    cur.execute('SELECT id FROM music WHERE name=?', (music_name,))
-    index = cur.fetchone()[0]
-    mediaplay.setSource(music[indexs.index(index)])
-    lblcur.setText(music_name)
-    if paused:
-        pass
+    if ids_length == 0:
+        repeat_music()
     else:
-        mediaplay.play()
+        mediaplay.stop()
+        music_name = musiclist.item(pos).text()
+        cur.execute('SELECT id FROM music WHERE name=?', (music_name,))
+        index = cur.fetchone()[0]
+        mediaplay.setSource(music[indexs.index(index)])
+        lblcur.setText(music_name)
+        if paused:
+            pass
+        else:
+            mediaplay.play()
 
 def change_to_up():
     global pos
@@ -351,15 +354,13 @@ def check_dur():
 
 # рандомная музыка #
 def random_music():
-    mediaplay.stop()
-    global pos
-    now = pos
-    pos = randint(0, ids_length-1)
-    if ids_length == 0:
-        pass
-    elif ids_length == 1:
+    if ids_length == 0 or ids_length == 1:
         repeat_music()
     else:
+        mediaplay.stop()
+        global pos
+        now = pos
+        pos = randint(0, ids_length-1)
         while pos == now:
             pos = randint(0, ids_length-1)
         change_music(pos)
